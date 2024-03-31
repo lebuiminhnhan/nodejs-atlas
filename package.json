@@ -2,7 +2,7 @@
   "name": "nodejs-atlats",
   "version": "1.0.0",
   "description": "Using nodejs typescripts and mongoDB atlats",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/index.js",

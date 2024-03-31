@@ -1,20 +1,34 @@
-# Sử dụng Node.js phiên bản LTS làm base image
-FROM node:18
+# Use Node.js 18 as base image
+FROM node:18 AS builder
 
-# Tạo thư mục app trong container
+# Set working directory
 WORKDIR /usr/src/app
 
-# Sao chép package.json và package-lock.json (nếu có) vào thư mục app
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Cài đặt các dependencies
+# Install dependencies
 RUN npm install
 
-# Sao chép toàn bộ mã nguồn của ứng dụng vào thư mục app trong container
+# Copy the rest of the application code
 COPY . .
 
-# Expose cổng mà ứng dụng sẽ chạy trên
+# Build TypeScript code
+RUN npm run build
+
+# Use smaller Node.js image for production
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy only built files from previous stage
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/package.json ./
+
+# Expose port
 EXPOSE 3000
 
-# Khởi động ứng dụng
-CMD [ "npm", "start" ]
+# Command to run the application
+CMD ["node", "./dist/index.js"]
