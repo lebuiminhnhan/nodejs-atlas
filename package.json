@@ -1,7 +1,7 @@
 {
-  "name": "nodejs-atlats",
+  "name": "nodejs-atlas",
   "version": "1.0.0",
-  "description": "Using nodejs typescripts and mongoDB atlats",
+  "description": "Using nodejs typescripts and mongoDB atlas",
   "main": "index.ts",
   "scripts": {
     "build": "npx tsc",
@@ -16,9 +16,10 @@
     "@types/swagger-ui-express": "^4.1.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "firebase": "^10.10.0",
+    "googleapis": "^134.0.0",
     "mongodb": "^6.5.0",
     "mongoose": "^8.2.4",
+    "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
     "@types/swagger-jsdoc": "^6.0.4",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.3"
