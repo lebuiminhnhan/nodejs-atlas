@@ -6,7 +6,6 @@ import fs from 'fs';
 
 const drive = google.drive('v3');
 
-// Cấu hình Multer để lưu trữ ảnh tạm thời trước khi tải lên
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
@@ -15,15 +14,17 @@ const storage = multer.diskStorage({
     cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
   }
 });
-const upload = multer({ storage: storage });
+export const upload = multer({ storage: storage });
 
-// Đường dẫn đến tệp tin chứa thông tin xác thực của Google API
-const credentialsPath = '../key.json';
+const credentialsPath = 'credentials.json';
+if (fs.existsSync(credentialsPath)) {
+  console.log('File exists');
+} else {
+  console.log('File does not exist');
+}
 
-// Đọc thông tin xác thực từ tệp tin
 const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
 
-// Tạo JWT client để xác thực với Google Drive API
 const auth: any = new google.auth.JWT(
   credentials.client_email,
   '',
@@ -33,8 +34,9 @@ const auth: any = new google.auth.JWT(
 
 export const uploadImages = async (req: Request, res: Response) => {
   try {
+    console.log(req.files);
     const images = req.files as Express.Multer.File[];
-    const folderId = 'YOUR_FOLDER_ID'; // ID của thư mục bạn muốn lưu ảnh vào
+    const folderId = '1eMUCt_nnHS2frA0_krFCbTg_SJWISuel';
     const promises = images.map(async (image) => {
       const fileMetadata: any = {
         requestBody: {
@@ -48,17 +50,46 @@ export const uploadImages = async (req: Request, res: Response) => {
         body: fs.createReadStream(image.path)
       };
       
-      await drive.files.create({
+      console.log('Creating file:', image.originalname);
+
+      const uploadedFile = await drive.files.create({
         auth: auth,
         requestBody: fileMetadata,
         media: media,
         fields: 'id'
       });
+
+      console.log('File created:', uploadedFile.data);
+
+      try {
+        fs.unlinkSync(image.path);
+      } catch (error) {
+        console.error('Error deleting file:', error);
+        throw new Error('Failed to delete uploaded file');
+      }
     });
     await Promise.all(promises);
     res.status(200).json({ message: 'Upload successful' });
   } catch (error) {
     console.error('Error uploading images:', error);
     res.status(500).json({ message: 'Upload failed' });
+  }
+};
+
+
+export const checkFileExists =async (req: Request, res: Response) => {
+  const fileId = req.params.id;
+  try {
+    const response = await drive.files.get({
+      auth: auth,
+      fileId: fileId,
+      fields: 'id, name'
+    });
+    
+    console.log('File exists:', response.data.name);
+    return true;
+  } catch (error) {
+    console.log('File does not exist:', error);
+    return false;
   }
 };
