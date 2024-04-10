@@ -15,17 +15,17 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-mongoose.connect(MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('Error connecting to MongoDB:', err);
-  });
-
+// mongoose.connect(MONGODB_URI)
+//   .then(() => {
+//     console.log('Connected to MongoDB');
+//   })
+//   .catch((err) => {
+//     console.error('Error connecting to MongoDB:', err);
+//   });
+  
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 app.use(express.json());
 app.use('/api', routes );
 app.use(swagger);
