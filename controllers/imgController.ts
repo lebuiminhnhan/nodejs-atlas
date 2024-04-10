@@ -38,13 +38,6 @@ export const uploadImages = async (req: Request, res: Response) => {
     const images = req.files as Express.Multer.File[];
     const folderId = '1eMUCt_nnHS2frA0_krFCbTg_SJWISuel';
     const promises = images.map(async (image) => {
-      const fileMetadata: any = {
-        requestBody: {
-          name: image.originalname,
-          parents: [folderId]
-        }
-      };
-      
       const media = {
         mimeType: image.mimetype,
         body: fs.createReadStream(image.path)
@@ -54,7 +47,10 @@ export const uploadImages = async (req: Request, res: Response) => {
 
       const uploadedFile = await drive.files.create({
         auth: auth,
-        requestBody: fileMetadata,
+        requestBody: {
+          name: image.originalname,
+          parents: [folderId]
+        },
         media: media,
         fields: 'id'
       });
@@ -67,6 +63,8 @@ export const uploadImages = async (req: Request, res: Response) => {
         console.error('Error deleting file:', error);
         throw new Error('Failed to delete uploaded file');
       }
+
+      return uploadedFile
     });
     await Promise.all(promises);
     res.status(200).json({ message: 'Upload successful' });
